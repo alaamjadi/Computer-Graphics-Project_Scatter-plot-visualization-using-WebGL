@@ -102,3 +102,21 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Extra
+.idea
+*.env
+*.dev
+.DS_Store
+desktop.ini
+package-lock.json
+*.orig
+config.gypi
+.npmrc
+._*
+.*.swp
+.wafpickle-N
+.hg
+.svn
+CVS
+.git

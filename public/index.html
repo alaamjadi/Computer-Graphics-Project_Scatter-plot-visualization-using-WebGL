@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Computer Graphics Project</title>
+    <meta
+      name="description"
+      content="Scatter plot visualization using WebGL, a project for computer graphics course which was developed by SophisticatedKids at Politecnico di Milano"
+    />
+
+    <meta name="keywords" content="" />
+    <meta name="author" content="SophisticatedKids" />
+
+    <link rel="shortcut icon" href="./static/favicon.ico" />
+
+    <!-- *** Bootstrap CSS *** -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
+
+    <!-- *** Optional CSS *** -->
+    <link rel="stylesheet" href="./css/style.css" type="text/css" />
+  </head>
+
+  <body>
+    <!-- *** Main Menu Section *** -->
+    <header class="headerclass">
+      <nav
+        class="navbar navbar-expand-lg navbar-light bg-light fixed-top"
+        id="mainNav"
+      >
+        <div class="container-fluid">
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarResponsive"
+            aria-controls="navbarResponsive"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav p-2">
+              <li class="nav-item">
+                <a class="nav-link" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Load</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-10">
+          <canvas id="canvas"></canvas>
+          <div id="divcontainer"></div>
+        </div>
+        <div class="col-2 bg-light" id="uiContainer">
+          <div id="ui">
+            <div id="cameraZoom"></div>
+            <div id="cameraXAngle"></div>
+            <div id="cameraYAngle"></div>
+            <div id="cameraZAngle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- *** Footer Section *** -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <p>
+              © 2020 Computer Grphics Project | Designed by
+              <strong>Sophisticated Kids</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- *** Optional JavaScript *** -->
+    <script type="text/javascript" src="js/webgl-utils.js"></script>
+    <script type="text/javascript" src="js/utils.js"></script>
+    <script type="text/javascript" src="js/myutils.js"></script>
+    <script type="text/javascript" src="js/myutils_short.js"></script>
+    <script type="text/javascript" src="js/ui.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+
+    <!-- *** jQuery first, then Popper.js, then Bootstrap JS *** -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <!-- vertex shader -->
+    <script id="vertex-shader-3d" type="x-shader/x-vertex">
+      attribute vec4 a_position;
+      attribute vec4 a_color;
+
+      uniform mat4 u_matrix;
+
+      varying vec4 v_color;
+
+      void main() {
+        // Multiply the position by the matrix.
+        gl_Position = u_matrix * a_position;
+
+        // Pass the color to the fragment shader.
+        v_color = a_color;
+      }
+    </script>
+
+    <!-- fragment shader -->
+    <script id="fragment-shader-3d" type="x-shader/x-fragment">
+      precision mediump float;
+
+      // Passed in from the vertex shader.
+      varying vec4 v_color;
+
+      void main() {
+         gl_FragColor = v_color;
+      }
+    </script>
+    <!--
+  for most samples webgl-utils only provides shader compiling/linking and
+  canvas resizing because why clutter the examples with code that's the same in every sample.
+  See https://webglfundamentals.org/webgl/lessons/webgl-boilerplate.html
+  and https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
+  for webgl-utils, m3, m4, and webgl-lessons-ui.-->
+  </body>
+</html>

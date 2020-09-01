@@ -1,0 +1,7 @@
+{
+  "name": "Scatter Plot Visualization using WebGL",
+  "description": "Scatter plot visualization using WebGL, a project for computer graphics course which was developed by SophisticatedKids at Politecnico di Milano",
+  "repository": "https://gitlab.com/alaamjadi/cgp",
+  "logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/master/public/node.svg",
+  "keywords": ["HTML", "JavaScript", "Nodejs", "Bootstrap", "JQuery", "WebGL", "NPM"]
+}
