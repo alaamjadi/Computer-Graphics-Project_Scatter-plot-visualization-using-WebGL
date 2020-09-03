@@ -77,6 +77,20 @@ createProgram:function(gl, vertexShader, fragmentShader) {
 		//send the request
 		xmlHttp.send();
 	},
+
+	// Function to load a 3D model in OBJ format
+	get_obj: function(url, func) {
+		var xmlHttp = new XMLHttpRequest();
+		xmlHttp.open("GET", url, false); // if true == asynchronous...
+		xmlHttp.onreadystatechange = function() {
+			if (xmlHttp.readyState == 4 && xmlHttp.status==200) {
+				//the file is loaded. Parse it as JSON and launch function
+				func(xmlHttp.responseText)
+			}
+		};
+		//send the request
+		xmlHttp.send();
+	},
 	
 	//function to convert decimal value of colors 
 	decimalToHex: function(d, padding) {

@@ -1,6 +1,10 @@
 "use strict";
-var dataset;
+// Global variables
+var baseDir, myDataset, myObject
 
+
+
+// Parse object
 function parseOBJ(text) {
   // because indices are base 1 let's just fill in the 0th data
   const objPositions = [[0, 0, 0]];
@@ -84,24 +88,43 @@ function parseOBJ(text) {
     handler(parts, unparsedArgs);
   }
 
+  console.log("object Data reading")
+  console.log("position", webglVertexData)
+  console.log("texcoord", webglVertexData)
+  console.log("normal", webglVertexData)
+
+
+
   return {
     position: webglVertexData[0],
     texcoord: webglVertexData[1],
     normal: webglVertexData[2],
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+
 async function main() {
     var xOffset = 0;
     var yOffset = -100;
     var zOffset = 0;
-
-    var xMax = Math.max.apply(Math, dataset.map(function(o) { return o.x; }));
-    var xMin = -Math.max.apply(Math, dataset.map(function(o) { return -o.x; }));
-    var yMax = Math.max.apply(Math, dataset.map(function(o) { return o.y; }));
-    var yMin = -Math.max.apply(Math, dataset.map(function(o) { return -o.y; }));
-    var zMax = Math.max.apply(Math, dataset.map(function(o) { return o.z; }));
-    var zMin = -Math.max.apply(Math, dataset.map(function(o) { return -o.z; }));
-    const normalizedDataset = dataset.map(item => [xOffset + (item.x - xMin) / (xMax - xMin) * 100.0, yOffset + (item.y - yMin) / (yMax - yMin) * 100.0, zOffset + (item.z - zMin) / (zMax - zMin) * 100.0, 1.0]);
+    
+    var xMax = Math.max.apply(Math, myDataset.map(function(o) { return o.x; }));
+    var xMin = -Math.max.apply(Math, myDataset.map(function(o) { return -o.x; }));
+    var yMax = Math.max.apply(Math, myDataset.map(function(o) { return o.y; }));
+    var yMin = -Math.max.apply(Math, myDataset.map(function(o) { return -o.y; }));
+    var zMax = Math.max.apply(Math, myDataset.map(function(o) { return o.z; }));
+    var zMin = -Math.max.apply(Math, myDataset.map(function(o) { return -o.z; }));
+    const normalizedDataset = myDataset.map(item => [xOffset + (item.x - xMin) / (xMax - xMin) * 100.0, yOffset + (item.y - yMin) / (yMax - yMin) * 100.0, zOffset + (item.z - zMin) / (zMax - zMin) * 100.0, 1.0]);
 
   function getCursorPosition(canvas, event, camera) {
     const rect = canvas.getBoundingClientRect();
@@ -196,10 +219,10 @@ async function main() {
   // compiles and links the shaders, looks up attribute and uniform locations
   const meshProgramInfo = webglUtils.createProgramInfo(gl, [vs, fs]);
 
-  const response = await fetch('https://webglfundamentals.org/webgl/resources/models/cube/cube.obj');  
-  const text = await response.text();
-  const data = parseOBJ(text);
-  const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
+ 
+
+  await loadObject("1") // "2 for sphere"
+  const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, myObject);
 
   const cameraTarget = [0, 0, 0];
   const cameraPosition = [0, 0, 4];
@@ -214,7 +237,7 @@ async function main() {
 
     const fieldOfViewRadians = degToRad(60);
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    const projection = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+    const projection = m44.perspective(fieldOfViewRadians, aspect, zNear, zFar);
 
     const up = [0, 1, 0];
     // Compute the camera's matrix using look at.
@@ -222,7 +245,7 @@ async function main() {
     // console.log("camera:", camera)
 
     // Make a view matrix from the camera matrix.
-    const view = m4.inverse(camera);
+    const view = m44.inverse(camera);
     //console.log("view:",view, Object.prototype.toString.call(view));
     const sharedUniforms = {
       u_lightDirection: m4.normalize([-1, 3, 5]),
@@ -254,7 +277,7 @@ async function main() {
 
     // calls gl.uniform
     webglUtils.setUniforms(meshProgramInfo, {
-      //u_world: m4.yRotation(time),
+      //u_world: m44.yRotation(time),
       u_world : givenMatrix,
       u_diffuse: rgb,
     });
@@ -316,8 +339,12 @@ async function main() {
 
   drawScene();
 
-  // Setup a ui.
-  //Y
+  ////////////////////////////////////////////// UI Setup //////////////////////////////////////////////
+
+ 
+  
+
+  //Camera Control
   webglLessonsUI.setupSlider("#cameraYAngle", {value: radToDeg(cameraAngleYRadians), slide: updateCameraAngleY, min: -360, max: 360});
   function updateCameraAngleY(event, ui) {
     cameraAngleYRadians = degToRad(ui.value);
@@ -397,26 +424,26 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     var zNear = 1;
     var zFar = 2000;
-    var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+    var projectionMatrix = m44.perspective(fieldOfViewRadians, aspect, zNear, zFar);
 
     // Compute a matrix for the camera
-    var cameraMatrix = m4.yRotation(cameraAngleYRadians);
-    cameraMatrix = m4.multiply(cameraMatrix, m4.xRotation(cameraAngleXRadians));
-    cameraMatrix = m4.multiply(cameraMatrix, m4.zRotation(cameraAngleZRadians));
-    cameraMatrix = m4.translate(cameraMatrix, 0, 0, radius * 1.5 - cameraZoom * radius * 1.5 / 10.0);
+    var cameraMatrix = m44.yRotation(cameraAngleYRadians);
+    cameraMatrix = m44.multiply(cameraMatrix, m44.xRotation(cameraAngleXRadians));
+    cameraMatrix = m44.multiply(cameraMatrix, m44.zRotation(cameraAngleZRadians));
+    cameraMatrix = m44.translate(cameraMatrix, 0, 0, radius * 1.5 - cameraZoom * radius * 1.5 / 10.0);
     // console.log("cameraMat:",cameraMatrix)
     camera.cameraMatrix =  cameraMatrix;
     // Make a view matrix from the camera matrix
-    var viewMatrix = m4.inverse(cameraMatrix);
+    var viewMatrix = m44.inverse(cameraMatrix);
 
     // Compute a view projection matrix
-    var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+    var viewProjectionMatrix = m44.multiply(projectionMatrix, viewMatrix);
 
     // main axis
     for (var ii = 0; ii < 1; ++ii) {
       // starting with the view projection matrix
       // compute a matrix for the F
-      var matrix = m4.translate(viewProjectionMatrix, xOffset, yOffset, zOffset);
+      var matrix = m44.translate(viewProjectionMatrix, xOffset, yOffset, zOffset);
 
       // Set the matrix.
       gl.uniformMatrix4fv(matrixLocation, false, matrix);
@@ -432,7 +459,7 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
     for (var ii = 0; ii < 3; ++ii) {
       // starting with the view projection matrix
       // compute a matrix for the F
-      var clipspace = m4.translate(viewProjectionMatrix, xOffset, yOffset, zOffset);
+      var clipspace = m44.translate(viewProjectionMatrix, xOffset, yOffset, zOffset);
       if(ii == 0)
         clipspace = m44.vectorMultiply([0, -100,  0, 1.0], clipspace);
       else if(ii == 1)
@@ -457,10 +484,10 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
     }
 
     normalizedDataset.forEach(function(item, index) {
-      var matrix = m4.translate(viewProjectionMatrix, item[0], item[1], item[2]);
+      var matrix = m44.translate(viewProjectionMatrix, item[0], item[1], item[2]);
       gl.uniformMatrix4fv(matrixLocation, false, matrix);
       gl.drawArrays(gl.POINTS, 6, 1);
-      requestAnimationFrame(function(time){render(time, matrix, dataset[index]['class'])});
+      requestAnimationFrame(function(time){render(time, matrix, myDataset[index]['class'])});
     });
     
 
@@ -481,7 +508,7 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
         }
         // starting with the view projection matrix
         // compute a matrix for the F
-        var matrix = m4.translate(viewProjectionMatrix, x, y, z);
+        var matrix = m44.translate(viewProjectionMatrix, x, y, z);
         // Set the matrix.
         gl.uniformMatrix4fv(matrixLocation, false, matrix);
         // Draw the geometry.
@@ -507,7 +534,7 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
         }
         // starting with the view projection matrix
         // compute a matrix for the F
-        var matrix = m4.translate(viewProjectionMatrix, x, y, z);
+        var matrix = m44.translate(viewProjectionMatrix, x, y, z);
         // Set the matrix.
         gl.uniformMatrix4fv(matrixLocation, false, matrix);
         // Draw the geometry.
@@ -521,6 +548,8 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
 
   }
 }
+
+
 
 // Fill the buffer with the values that define a letter 'F'.
 function setGeometry(gl) {
@@ -542,8 +571,8 @@ function setGeometry(gl) {
   // We could do by changing all the values above but I'm lazy.
   // We could also do it with a matrix at draw time but you should
   // never do stuff at draw time if you can do it at init time.
-  var matrix = m4.xRotation(Math.PI);
-  matrix = m4.translate(matrix, -50, -75, -15);
+  var matrix = m44.xRotation(Math.PI);
+  matrix = m44.translate(matrix, -50, -75, -15);
 
   for (var ii = 0; ii < positions.length; ii += 3) {
     var vector = m44.vectorMultiply([positions[ii + 0], positions[ii + 1], positions[ii + 2], 1], matrix);
@@ -554,6 +583,8 @@ function setGeometry(gl) {
 
   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 }
+
+
 
 // Fill the buffer with colors for the 'F'.
 function setColors(gl) {
@@ -689,17 +720,41 @@ function setColors(gl) {
         160, 160, 220]),
       gl.STATIC_DRAW);
 }
-async function init(){
-   var path = window.location.pathname;
-    var page = path.split("/").pop();
-    var baseDir = window.location.href.replace(page, '');
-    var shadeDir = baseDir + "/glsl";
-  //Load the dataset from the json
-     
-    await utils.get_json(baseDir+"../dataset"+"/data.json", function(jsonFile){
-    dataset = jsonFile.values;
-    });
-    console.log(dataset);
+
+
+function browserInit () {
+  var path = window.location.pathname;
+  var page = path.split("/").pop();
+  baseDir = window.location.href.replace(page, '');
+}
+
+
+
+
+async function init(params) {
+  browserInit()
+  await utils.get_json(baseDir+"dataset/data.json", function(jsonFile){
+    myDataset = jsonFile.values
+  });
+  /* await loadObject("1") */
   main();
 }
-window.onload = init;
+
+ //Load Objects
+ async function loadObject(params) {
+  if (params == "0") {
+    console.log("Load Object => Null")
+  } else if (params == "1") {
+    const response = await fetch(baseDir+"obj/cube.obj")
+    const text = await response.text()
+    myObject = parseOBJ(text)
+  } else if (params == "2") {
+    const response = await fetch(baseDir+"obj/sphere.obj")
+    const text = await response.text()
+    myObject = parseOBJ(text)
+ }
+ console.log(params)
+}
+
+
+window.onload = init

@@ -1,3 +1,4 @@
+// This code checks for the presence of require.js, a JavaScript dependency management library.
 (function(root, factory) {  // eslint-disable-line
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
@@ -233,3 +234,31 @@
 
 }));
 
+
+function objSelector(params) {
+  /* deleteChild("objdropdown"); */
+  if (params == "0") {
+    loadObject("0")
+  } else if (params == "1") {
+    loadObject("1")
+  } else if (params == "2") {
+    loadObject("2")
+  }
+}
+
+  /* function deleteChild(id_element) {
+    var e = document.querySelector("#" + id_element);
+    var child = e.firstElementChild;
+    while (child) {
+        e.removeChild(child);
+        child = e.lastElementChild;
+    }
+} */
+
+ //Load Objects
+ function loadObject(params) {
+  /* if (params == "0") {
+    
+  } */
+  console.log(params)
+}
