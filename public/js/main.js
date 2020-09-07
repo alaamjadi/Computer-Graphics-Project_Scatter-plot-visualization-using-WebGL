@@ -1,7 +1,7 @@
 "use strict";
 // Global variables
-var baseDir, myDataset, myObject
-
+var gl, baseDir, myDataset, myObject
+var shader1 =[]
 
 
 // Parse object
@@ -114,43 +114,43 @@ function parseOBJ(text) {
 
 
 async function main() {
-    var xOffset = 0;
-    var yOffset = -100;
-    var zOffset = 0;
-    
-    var xMax = Math.max.apply(Math, myDataset.map(function(o) { return o.x; }));
-    var xMin = -Math.max.apply(Math, myDataset.map(function(o) { return -o.x; }));
-    var yMax = Math.max.apply(Math, myDataset.map(function(o) { return o.y; }));
-    var yMin = -Math.max.apply(Math, myDataset.map(function(o) { return -o.y; }));
-    var zMax = Math.max.apply(Math, myDataset.map(function(o) { return o.z; }));
-    var zMin = -Math.max.apply(Math, myDataset.map(function(o) { return -o.z; }));
-    const normalizedDataset = myDataset.map(item => [xOffset + (item.x - xMin) / (xMax - xMin) * 100.0, yOffset + (item.y - yMin) / (yMax - yMin) * 100.0, zOffset + (item.z - zMin) / (zMax - zMin) * 100.0, 1.0]);
+  var xOffset = 0;
+  var yOffset = -100;
+  var zOffset = 0;
+
+  var xMax = Math.max.apply(Math, myDataset.map(function (o) { return o.x; }));
+  var xMin = -Math.max.apply(Math, myDataset.map(function (o) { return -o.x; }));
+  var yMax = Math.max.apply(Math, myDataset.map(function (o) { return o.y; }));
+  var yMin = -Math.max.apply(Math, myDataset.map(function (o) { return -o.y; }));
+  var zMax = Math.max.apply(Math, myDataset.map(function (o) { return o.z; }));
+  var zMin = -Math.max.apply(Math, myDataset.map(function (o) { return -o.z; }));
+  const normalizedDataset = myDataset.map(item => [xOffset + (item.x - xMin) / (xMax - xMin) * 100.0, yOffset + (item.y - yMin) / (yMax - yMin) * 100.0, zOffset + (item.z - zMin) / (zMax - zMin) * 100.0, 1.0]);
 
   function getCursorPosition(canvas, event, camera) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     //console.log("x: " + x + " y: " + y);
-    var x1 = m44.division(m44.vectorMultiply([x,y,1.0,1],m44.inverse(camera.cameraMatrix)));
-    var x2 = m44.division(m44.vectorMultiply([x,y,-1.0,1],m44.inverse(camera.cameraMatrix)));
+    var x1 = m44.division(m44.vectorMultiply([x, y, 1.0, 1], m44.inverse(camera.cameraMatrix)));
+    var x2 = m44.division(m44.vectorMultiply([x, y, -1.0, 1], m44.inverse(camera.cameraMatrix)));
     //console.log(x1);
     //console.log(x2);
     var minDistance = 10000;
     var minIndex = null;
-    normalizedDataset.forEach(function(x0, index) {
+    normalizedDataset.forEach(function (x0, index) {
       // console.log(x0);
       // var x0 = m44.namedVector2Array(item);
-      var dist = m44.magnitude(m44.hadamard(m44.subtract(x2,x1),m44.subtract(x1,x0)))/m44.magnitude(m44.subtract(x2,x1));
-      if (dist<minDistance){
+      var dist = m44.magnitude(m44.hadamard(m44.subtract(x2, x1), m44.subtract(x1, x0))) / m44.magnitude(m44.subtract(x2, x1));
+      if (dist < minDistance) {
         minDistance = dist;
         minIndex = index;
       }
       //if(index <= 1){
-       // console.log(index,dist);
-        //console.log(x0);
+      // console.log(index,dist);
+      //console.log(x0);
       //}
     });
-    console.log(minDistance,minIndex, normalizedDataset[minIndex]);
+    console.log(minDistance, minIndex, normalizedDataset[minIndex]);
   }
 
   var canvas = document.querySelector("#canvas");
@@ -158,11 +158,11 @@ async function main() {
   if (!gl) {
     return;
   }
-  var camera = {cameraMatrix:null};
+  var camera = { cameraMatrix: null };
   console.log(camera)
-  canvas.addEventListener('mousedown', function(e) {
-      console.log("hi")
-      getCursorPosition(canvas, e, camera)
+  canvas.addEventListener('mousedown', function (e) {
+    console.log("hi")
+    getCursorPosition(canvas, e, camera)
   });
 
   // look up the divcontainer
@@ -171,7 +171,7 @@ async function main() {
   // make the divs
   var divs = []
   var textNodes = []
-  for(var i=0; i<3; ++i){
+  for (var i = 0; i < 3; ++i) {
     var div = document.createElement("div");
     // assign it a CSS class
     div.className = "floating-div";
@@ -184,42 +184,17 @@ async function main() {
     divs.push(div);
   }
 
-  const vs = `
-  attribute vec4 a_position;
-  attribute vec3 a_normal;
+  await utils.loadFiles([baseDir + "glsl/shader1-vs.glsl", baseDir + "glsl/shader1-fs.glsl"], function (shaderText) {
+    shader1 = [shaderText[0],shaderText[1]]
+  })
 
-  uniform mat4 u_projection;
-  uniform mat4 u_view;
-  uniform mat4 u_world;
-
-  varying vec3 v_normal;
-
-  void main() {
-    gl_Position = u_projection * u_view * u_world * a_position;
-    v_normal = mat3(u_world) * a_normal;
-  }
-  `;
-
-  const fs = `
-  precision mediump float;
-
-  varying vec3 v_normal;
-
-  uniform vec4 u_diffuse;
-  uniform vec3 u_lightDirection;
-
-  void main () {
-    vec3 normal = normalize(v_normal);
-    float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
-    gl_FragColor = vec4(u_diffuse.rgb * fakeLight, u_diffuse.a);
-  }
-  `;
-
+  console.log(shader1[0])
+  console.log(shader1[1])
 
   // compiles and links the shaders, looks up attribute and uniform locations
-  const meshProgramInfo = webglUtils.createProgramInfo(gl, [vs, fs]);
+  const meshProgramInfo = webglUtils.createProgramInfo(gl, shader1[0], shader1[1]);
 
- 
+
 
   await loadObject("1") // "2 for sphere"
   const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, myObject);
@@ -229,7 +204,7 @@ async function main() {
   const zNear = 0.0001;
   const zFar = 500000;
   function render(time, givenMatrix, pointClass) {
-   
+
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.DEPTH_TEST);
@@ -261,7 +236,7 @@ async function main() {
     // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
     webglUtils.setBuffersAndAttributes(gl, meshProgramInfo, bufferInfo);
 
-    switch (pointClass){
+    switch (pointClass) {
       case 0:
         var rgb = [0.0, 0.0, 1.0, 1.0];
         break
@@ -278,7 +253,7 @@ async function main() {
     // calls gl.uniform
     webglUtils.setUniforms(meshProgramInfo, {
       //u_world: m44.yRotation(time),
-      u_world : givenMatrix,
+      u_world: givenMatrix,
       u_diffuse: rgb,
     });
 
@@ -305,7 +280,7 @@ async function main() {
   // Create an empty buffer object
   var axis_vertex_buffer = gl.createBuffer();
   // Bind appropriate array buffer to it
-  gl.bindBuffer(gl.ARRAY_BUFFER, axis_vertex_buffer);    
+  gl.bindBuffer(gl.ARRAY_BUFFER, axis_vertex_buffer);
   // Pass the vertex data to the buffer
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(axisVertices), gl.STATIC_DRAW);
 
@@ -341,26 +316,26 @@ async function main() {
 
   ////////////////////////////////////////////// UI Setup //////////////////////////////////////////////
 
- 
-  
+
+
 
   //Camera Control
-  webglLessonsUI.setupSlider("#cameraYAngle", {value: radToDeg(cameraAngleYRadians), slide: updateCameraAngleY, min: -360, max: 360});
+  webglLessonsUI.setupSlider("#cameraYAngle", { value: radToDeg(cameraAngleYRadians), slide: updateCameraAngleY, min: -360, max: 360 });
   function updateCameraAngleY(event, ui) {
     cameraAngleYRadians = degToRad(ui.value);
     drawScene();
   }
-  webglLessonsUI.setupSlider("#cameraZAngle", {value: radToDeg(cameraAngleZRadians), slide: updateCameraAngleZ, min: -360, max: 360});
+  webglLessonsUI.setupSlider("#cameraZAngle", { value: radToDeg(cameraAngleZRadians), slide: updateCameraAngleZ, min: -360, max: 360 });
   function updateCameraAngleZ(event, ui) {
     cameraAngleZRadians = degToRad(ui.value);
     drawScene();
   }
-  webglLessonsUI.setupSlider("#cameraXAngle", {value: radToDeg(cameraAngleXRadians), slide: updateCameraAngleX, min: -360, max: 360});
+  webglLessonsUI.setupSlider("#cameraXAngle", { value: radToDeg(cameraAngleXRadians), slide: updateCameraAngleX, min: -360, max: 360 });
   function updateCameraAngleX(event, ui) {
     cameraAngleXRadians = degToRad(ui.value);
     drawScene();
   }
-webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCameraZoom, min: -10, max: 10});
+  webglLessonsUI.setupSlider("#cameraZoom", { value: cameraZoom, slide: updateCameraZoom, min: -10, max: 10 });
   function updateCameraZoom(event, ui) {
     cameraZoom = ui.value;
     drawScene();
@@ -399,7 +374,7 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
     var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
     var offset = 0;        // start at the beginning of the buffer
     gl.vertexAttribPointer(
-        positionLocation, size, type, normalize, stride, offset);
+      positionLocation, size, type, normalize, stride, offset);
 
     // Turn on the color attribute
     gl.enableVertexAttribArray(colorLocation);
@@ -414,7 +389,7 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
     var stride = 0;               // 0 = move forward size * sizeof(type) each iteration to get the next position
     var offset = 0;               // start at the beginning of the buffer
     gl.vertexAttribPointer(
-        colorLocation, size, type, normalize, stride, offset);
+      colorLocation, size, type, normalize, stride, offset);
 
 
     var numFs = 1;
@@ -432,7 +407,7 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
     cameraMatrix = m44.multiply(cameraMatrix, m44.zRotation(cameraAngleZRadians));
     cameraMatrix = m44.translate(cameraMatrix, 0, 0, radius * 1.5 - cameraZoom * radius * 1.5 / 10.0);
     // console.log("cameraMat:",cameraMatrix)
-    camera.cameraMatrix =  cameraMatrix;
+    camera.cameraMatrix = cameraMatrix;
     // Make a view matrix from the camera matrix
     var viewMatrix = m44.inverse(cameraMatrix);
 
@@ -460,44 +435,44 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
       // starting with the view projection matrix
       // compute a matrix for the F
       var clipspace = m44.translate(viewProjectionMatrix, xOffset, yOffset, zOffset);
-      if(ii == 0)
-        clipspace = m44.vectorMultiply([0, -100,  0, 1.0], clipspace);
-      else if(ii == 1)
-        clipspace = m44.vectorMultiply([0, 0,  -100, 1.0], clipspace);
+      if (ii == 0)
+        clipspace = m44.vectorMultiply([0, -100, 0, 1.0], clipspace);
+      else if (ii == 1)
+        clipspace = m44.vectorMultiply([0, 0, -100, 1.0], clipspace);
       else
-        clipspace = m44.vectorMultiply([100, 0,  0, 1.0], clipspace);
+        clipspace = m44.vectorMultiply([100, 0, 0, 1.0], clipspace);
 
       // Set the matrix.
       gl.uniformMatrix4fv(matrixLocation, false, clipspace);
 
       // divide X and Y by W just like the GPU does.
-    clipspace = m44.division(clipspace);
+      clipspace = m44.division(clipspace);
 
-    // convert from clipspace to pixels
-    var pixelX = (clipspace[0] *  0.5 + 0.5) * gl.canvas.width;
-    var pixelY = (clipspace[1] * -0.5 + 0.5) * gl.canvas.height;
+      // convert from clipspace to pixels
+      var pixelX = (clipspace[0] * 0.5 + 0.5) * gl.canvas.width;
+      var pixelY = (clipspace[1] * -0.5 + 0.5) * gl.canvas.height;
 
-    // position the div
-    divs[ii].style.left = Math.floor(pixelX) + "px";
-    divs[ii].style.top  = Math.floor(pixelY) + "px";
-    textNodes[ii].nodeValue = 'Text_'+ii;
+      // position the div
+      divs[ii].style.left = Math.floor(pixelX) + "px";
+      divs[ii].style.top = Math.floor(pixelY) + "px";
+      textNodes[ii].nodeValue = 'Text_' + ii;
     }
 
-    normalizedDataset.forEach(function(item, index) {
+    normalizedDataset.forEach(function (item, index) {
       var matrix = m44.translate(viewProjectionMatrix, item[0], item[1], item[2]);
       gl.uniformMatrix4fv(matrixLocation, false, matrix);
       gl.drawArrays(gl.POINTS, 6, 1);
-      requestAnimationFrame(function(time){render(time, matrix, myDataset[index]['class'])});
+      requestAnimationFrame(function (time) { render(time, matrix, myDataset[index]['class']) });
     });
-    
 
-    for(var jj = 0; jj<3; ++jj){
+
+    for (var jj = 0; jj < 3; ++jj) {
       for (var ii = 1; ii < 6; ++ii) {
-        if(jj == 0){
+        if (jj == 0) {
           var x = xOffset + ii * 20;
           var y = yOffset;
           var z = zOffset;
-        } else if(jj == 1){
+        } else if (jj == 1) {
           var x = xOffset;
           var y = yOffset + ii * 20;
           var z = zOffset;
@@ -519,11 +494,11 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
         gl.drawArrays(primitiveType, offset, count);
       }
       for (var ii = 1; ii < 6; ++ii) {
-        if(jj == 0){
+        if (jj == 0) {
           var x = xOffset;
           var y = yOffset;
           var z = zOffset + ii * 20;
-        } else if(jj == 1){
+        } else if (jj == 1) {
           var x = xOffset + ii * 20;
           var y = yOffset;
           var z = zOffset;
@@ -554,15 +529,15 @@ webglLessonsUI.setupSlider("#cameraZoom", {value: cameraZoom, slide: updateCamer
 // Fill the buffer with the values that define a letter 'F'.
 function setGeometry(gl) {
   var positions = new Float32Array([
-          // left column front
-          0,   0,  0,
-          0, -100,  0,
-          0,   0,  0,
-          0, 0,  -100,
-          0, 0,  0,
-          100,   0,  0,
-          0, 0, 0
-          ]);
+    // left column front
+    0, 0, 0,
+    0, -100, 0,
+    0, 0, 0,
+    0, 0, -100,
+    0, 0, 0,
+    100, 0, 0,
+    0, 0, 0
+  ]);
 
   // Center the F around the origin and Flip it around. We do this because
   // we're in 3D now with and +Y is up where as before when we started with 2D
@@ -589,172 +564,216 @@ function setGeometry(gl) {
 // Fill the buffer with colors for the 'F'.
 function setColors(gl) {
   gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Uint8Array([
-          // left column front
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
+    gl.ARRAY_BUFFER,
+    new Uint8Array([
+      // left column front
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
 
-          // top rung front
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
+      // top rung front
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
 
-          // middle rung front
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
+      // middle rung front
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
+      200, 70, 120,
 
-          // left column back
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
+      // left column back
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
 
-          // top rung back
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
+      // top rung back
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
 
-          // middle rung back
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
+      // middle rung back
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
+      80, 70, 200,
 
-          // top
-        70, 200, 210,
-        70, 200, 210,
-        70, 200, 210,
-        70, 200, 210,
-        70, 200, 210,
-        70, 200, 210,
+      // top
+      70, 200, 210,
+      70, 200, 210,
+      70, 200, 210,
+      70, 200, 210,
+      70, 200, 210,
+      70, 200, 210,
 
-          // top rung right
-        200, 200, 70,
-        200, 200, 70,
-        200, 200, 70,
-        200, 200, 70,
-        200, 200, 70,
-        200, 200, 70,
+      // top rung right
+      200, 200, 70,
+      200, 200, 70,
+      200, 200, 70,
+      200, 200, 70,
+      200, 200, 70,
+      200, 200, 70,
 
-          // under top rung
-        210, 100, 70,
-        210, 100, 70,
-        210, 100, 70,
-        210, 100, 70,
-        210, 100, 70,
-        210, 100, 70,
+      // under top rung
+      210, 100, 70,
+      210, 100, 70,
+      210, 100, 70,
+      210, 100, 70,
+      210, 100, 70,
+      210, 100, 70,
 
-          // between top rung and middle
-        210, 160, 70,
-        210, 160, 70,
-        210, 160, 70,
-        210, 160, 70,
-        210, 160, 70,
-        210, 160, 70,
+      // between top rung and middle
+      210, 160, 70,
+      210, 160, 70,
+      210, 160, 70,
+      210, 160, 70,
+      210, 160, 70,
+      210, 160, 70,
 
-          // top of middle rung
-        70, 180, 210,
-        70, 180, 210,
-        70, 180, 210,
-        70, 180, 210,
-        70, 180, 210,
-        70, 180, 210,
+      // top of middle rung
+      70, 180, 210,
+      70, 180, 210,
+      70, 180, 210,
+      70, 180, 210,
+      70, 180, 210,
+      70, 180, 210,
 
-          // right of middle rung
-        100, 70, 210,
-        100, 70, 210,
-        100, 70, 210,
-        100, 70, 210,
-        100, 70, 210,
-        100, 70, 210,
+      // right of middle rung
+      100, 70, 210,
+      100, 70, 210,
+      100, 70, 210,
+      100, 70, 210,
+      100, 70, 210,
+      100, 70, 210,
 
-          // bottom of middle rung.
-        76, 210, 100,
-        76, 210, 100,
-        76, 210, 100,
-        76, 210, 100,
-        76, 210, 100,
-        76, 210, 100,
+      // bottom of middle rung.
+      76, 210, 100,
+      76, 210, 100,
+      76, 210, 100,
+      76, 210, 100,
+      76, 210, 100,
+      76, 210, 100,
 
-          // right of bottom
-        140, 210, 80,
-        140, 210, 80,
-        140, 210, 80,
-        140, 210, 80,
-        140, 210, 80,
-        140, 210, 80,
+      // right of bottom
+      140, 210, 80,
+      140, 210, 80,
+      140, 210, 80,
+      140, 210, 80,
+      140, 210, 80,
+      140, 210, 80,
 
-          // bottom
-        90, 130, 110,
-        90, 130, 110,
-        90, 130, 110,
-        90, 130, 110,
-        90, 130, 110,
-        90, 130, 110,
+      // bottom
+      90, 130, 110,
+      90, 130, 110,
+      90, 130, 110,
+      90, 130, 110,
+      90, 130, 110,
+      90, 130, 110,
 
-          // left side
-        160, 160, 220,
-        160, 160, 220,
-        160, 160, 220,
-        160, 160, 220,
-        160, 160, 220,
-        160, 160, 220]),
-      gl.STATIC_DRAW);
+      // left side
+      160, 160, 220,
+      160, 160, 220,
+      160, 160, 220,
+      160, 160, 220,
+      160, 160, 220,
+      160, 160, 220]),
+    gl.STATIC_DRAW);
 }
 
 
-function browserInit () {
-  var path = window.location.pathname;
-  var page = path.split("/").pop();
-  baseDir = window.location.href.replace(page, '');
-}
+
 
 
 
 
 async function init(params) {
   browserInit()
-  await utils.get_json(baseDir+"dataset/data.json", function(jsonFile){
+  await utils.get_json(baseDir + "dataset/data.json", function (jsonFile) {
     myDataset = jsonFile.values
   });
   /* await loadObject("1") */
   main();
 }
 
- //Load Objects
- async function loadObject(params) {
+
+
+
+
+////////////////////////////////Load Object Init ////////////////////////////////
+async function loadObject(params) {
   if (params == "0") {
     console.log("Load Object => Null")
   } else if (params == "1") {
-    const response = await fetch(baseDir+"obj/cube.obj")
+    const response = await fetch(baseDir + "obj/cube.obj")
     const text = await response.text()
     myObject = parseOBJ(text)
   } else if (params == "2") {
-    const response = await fetch(baseDir+"obj/sphere.obj")
+    const response = await fetch(baseDir + "obj/sphere.obj")
     const text = await response.text()
     myObject = parseOBJ(text)
- }
- console.log(params)
+  }
+  console.log(params)
+}
+
+////////////////////////////////Browser Init ////////////////////////////////
+function browserInit() {
+  var path = window.location.pathname;
+  var page = path.split("/").pop();
+
+  baseDir = window.location.href.replace(page, '');
+
+  /* //Make canvas resize automatically
+  var canvas = document.getElementById("canvas");
+  autoResizeCanvas(canvas); */
+
+  /* gl = canvas.getContext("webgl2");
+  if (!gl) {
+    document.write("GL context not opened");
+    return;
+  } */
+
+  //build shaders
+/*   shader1 = loadShaderVFS(baseDir + "glsl/shader1-vs.glsl", baseDir + "glsl/shader1-fs.glsl")
+ */
 }
 
 
-window.onload = init
+
+
+////////////////////////////////Shaders Init ////////////////////////////////
+async function loadShaderVFS(vs, fs) {
+  await utils.loadFiles([vs, fs], function (shaderText) {
+    return [shaderText[0], shaderText[1]]
+  })
+}
+
+
+function autoResizeCanvas(canvas){
+	const expandFullScreen = () =>{
+		canvas.width = $("#canvas").parent().width();
+		canvas.height = $("#canvas").parent().height();
+	};
+
+	expandFullScreen();
+	//Resize screen when the browser has triggered the resize event
+	window.addEventListener('resize', expandFullScreen);
+}
+
+
+  window.onload = init
