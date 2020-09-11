@@ -14,11 +14,6 @@ canvas {
     width: 100%;
     height: 100%;
   }
-  #legend01 {
-    background-color: #f7f7f7;
-    font-family: courier;
-    padding: 5px;
-  }
 
 a{
   color: white;
@@ -33,8 +28,8 @@ footer {
   background-color: #484848;
   font-size: 16px;
   text-align: center;
-  padding-top: 20px;
-  padding-bottom: 8px;
+  padding-top: 6px;
+  padding-bottom: 0px;
   bottom: 0;
   left: 0;
   right: 0;
