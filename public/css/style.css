@@ -1,69 +1,14 @@
-/* Header */
-.navbar {
-  position: fixed;
-  top: 0;
-  padding-bottom: 0;
-}
-.nav-item {
-  font-size: 20px;
-  font-weight: bold;
-}
-li.nav-item {
-  padding: 10px 20px;
-}
-.nav-link:hover {
-  border-radius: 5px;
-  background-color: #cd2122;
-  color: white !important;
-}
-.active,
-.nav-link:active {
-  border-radius: 5px;
-  background-color: #3cc200 !important;
-  color: white !important;
-  font-weight: bold;
-}
-.headerclass {
-  margin-bottom: 90px;
-}
-
-
 /* Body */
 body {
   margin: 0;
-  /* background-color: gray; */
-  font-size: x-large;
-}
-body.style {
-  font-size: x-large;
-}
-
-
-/* Title + Content */
-h1 {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 26px;
-  color: #b30000;
-  font-style: normal;
-  margin-bottom: 3%;
-  font-weight: bold;
-}
-h2 {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 18px;
-  color: #3a3737;
-  font-style: normal;
-  margin-bottom: 1%;
-  font-weight: bold;
-}
-h3 {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 22px;
-  color: #5a5555;
+  background-color: gray;
+  font-family: courier;
+  font-size: large;
+  overflow: hidden;
 }
 
 /* Main */
-#canvas1 {
+canvas {
     display: block;
     background-color: #f7f7f7;
     width: 100%;
@@ -74,19 +19,13 @@ h3 {
     font-family: courier;
     padding: 5px;
   }
-.floating-div {
-  position: absolute;
-}
-.container {
-  position: relative;
-}
-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
 
-
+a{
+  color: white;
+}
+a:hover{
+  color: yellow;
+}
 
 /* Footer */
 footer {
@@ -96,7 +35,6 @@ footer {
   text-align: center;
   padding-top: 20px;
   padding-bottom: 8px;
-  position: relative;
   bottom: 0;
   left: 0;
   right: 0;

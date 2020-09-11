@@ -1,264 +1,73 @@
-// This code checks for the presence of require.js, a JavaScript dependency management library.
-(function(root, factory) {  // eslint-disable-line
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define([], function() {
-      return factory.call(root);
-    });
-  } else {
-    // Browser globals
-    root.webglLessonsUI = factory.call(root);
-  }
-}(this, function() {
-  'use strict';
-  const gopt = getQueryParams();
+// Boring DOM stuff (doesn't need explanation)
+let classFilterEl = document.querySelector( '#classFilter' );
+let modelSelectEl = document.querySelector( '#modelSelect' );
+let modelScaleEl = document.querySelector( '#modelScale' );
+let ambientLightColorEl = document.querySelector( '#ambientLightColor' );
+let ambientLightIntensityEl = document.querySelector( '#ambientLightIntensity' );
+let dirLightColorEl = document.querySelector( '#dirLightColor' );
+let dirLightIntensityEl = document.querySelector( '#dirLightIntensity' );
+let dirLightPosXEl = document.querySelector( '#dirLightPosX' );
+let dirLightPosYEl = document.querySelector( '#dirLightPosY' );
+let dirLightPosZEl = document.querySelector( '#dirLightPosZ' );
+let filterMinXEl = document.querySelector( '#filterMinX' );
+let filterMinYEl = document.querySelector( '#filterMinY' );
+let filterMinZEl = document.querySelector( '#filterMinZ' );
+let filterMaxXEl = document.querySelector( '#filterMaxX' );
+let filterMaxYEl = document.querySelector( '#filterMaxY' );
+let filterMaxZEl = document.querySelector( '#filterMaxZ' );
 
-  function setupSlider(selector, options) {
-    var parent = document.querySelector(selector);
-    if (!parent) {
-      // like jquery don't fail on a bad selector
-      return;
-    }
-    if (!options.name) {
-      options.name = selector.substring(1);
-    }
-    return createSlider(parent, options); // eslint-disable-line
-  }
+filterMinXEl.oninput = function () { filterMin[ 0 ] = this.value; }
+filterMinYEl.oninput = function () { filterMin[ 1 ] = this.value; }
+filterMinZEl.oninput = function () { filterMin[ 2 ] = this.value; }
 
-  function createSlider(parent, options) {
-    var precision = options.precision || 0;
-    var min = options.min || 0;
-    var step = options.step || 1;
-    var value = options.value || 0;
-    var max = options.max || 1;
-    var fn = options.slide;
-    var name = gopt["ui-" + options.name] || options.name;
-    var uiPrecision = options.uiPrecision === undefined ? precision : options.uiPrecision;
-    var uiMult = options.uiMult || 1;
+filterMaxXEl.oninput = function () { filterMax[ 0 ] = this.value; }
+filterMaxYEl.oninput = function () { filterMax[ 1 ] = this.value; }
+filterMaxZEl.oninput = function () { filterMax[ 2 ] = this.value; }
 
-    min /= step;
-    max /= step;
-    value /= step;
-
-    parent.innerHTML = `
-      <div class="gman-widget-outer">
-        <div class="gman-widget-label">${name}</div>
-        <div class="gman-widget-value"></div>
-        <input class="gman-widget-slider" type="range" min="${min}" max="${max}" value="${value}" />
-      </div>
-    `;
-    var valueElem = parent.querySelector(".gman-widget-value");
-    var sliderElem = parent.querySelector(".gman-widget-slider");
-
-    function updateValue(value) {
-      valueElem.textContent = (value * step * uiMult).toFixed(uiPrecision);
-    }
-
-    updateValue(value);
-
-    function handleChange(event) {
-      var value = parseInt(event.target.value);
-      updateValue(value);
-      fn(event, { value: value * step });
-    }
-
-    sliderElem.addEventListener('input', handleChange);
-    sliderElem.addEventListener('change', handleChange);
-
-    return {
-      elem: parent,
-      updateValue: (v) => {
-        v /= step;
-        sliderElem.value = v;
-        updateValue(v);
-      },
-    };
-  }
-
-  function makeSlider(options) {
-    const div = document.createElement("div");
-    return createSlider(div, options);
-  }
-
-  var widgetId = 0;
-  function getWidgetId() {
-    return "__widget_" + widgetId++;
-  }
-
-  function makeCheckbox(options) {
-    const div = document.createElement("div");
-    div.className = "gman-widget-outer";
-    const label = document.createElement("label");
-    const id = getWidgetId();
-    label.setAttribute('for', id);
-    label.textContent = gopt["ui-" + options.name] || options.name;
-    label.className = "gman-checkbox-label";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.checked = options.value;
-    input.id = id;
-    input.className = "gman-widget-checkbox";
-    div.appendChild(label);
-    div.appendChild(input);
-    input.addEventListener('change', function(e) {
-       options.change(e, {
-         value: e.target.checked,
-       });
-    });
-
-    return {
-      elem: div,
-      updateValue: function(v) {
-        input.checked = !!v;
-      },
-    };
-  }
-
-  function makeOption(options) {
-    const div = document.createElement("div");
-    div.className = "gman-widget-outer";
-    const label = document.createElement("label");
-    const id = getWidgetId();
-    label.setAttribute('for', id);
-    label.textContent = gopt["ui-" + options.name] || options.name;
-    label.className = "gman-widget-label";
-    const selectElem = document.createElement("select");
-    options.options.forEach((name, ndx) => {
-      const opt = document.createElement("option");
-      opt.textContent = gopt["ui-" + name] || name;
-      opt.value = ndx;
-      opt.selected = ndx === options.value;
-      selectElem.appendChild(opt);
-    });
-    selectElem.className = "gman-widget-select";
-    div.appendChild(label);
-    div.appendChild(selectElem);
-    selectElem.addEventListener('change', function(e) {
-       options.change(e, {
-         value: selectElem.selectedIndex,
-       });
-    });
-
-    return {
-      elem: div,
-      updateValue: function(v) {
-        selectElem.selectedIndex = v;
-      },
-    };
-  }
-
-  function noop() {
-  }
-
-  function genSlider(object, ui) {
-    const changeFn = ui.change || noop;
-    ui.name = ui.name || ui.key;
-    ui.value = object[ui.key];
-    ui.slide = ui.slide || function(event, uiInfo) {
-      object[ui.key] = uiInfo.value;
-      changeFn();
-    };
-    return makeSlider(ui);
-  }
-
-  function genCheckbox(object, ui) {
-    const changeFn = ui.change || noop;
-    ui.value = object[ui.key];
-    ui.name = ui.name || ui.key;
-    ui.change = function(event, uiInfo) {
-      object[ui.key] = uiInfo.value;
-      changeFn();
-    };
-    return makeCheckbox(ui);
-  }
-
-  function genOption(object, ui) {
-    const changeFn = ui.change || noop;
-    ui.value = object[ui.key];
-    ui.name = ui.name || ui.key;
-    ui.change = function(event, uiInfo) {
-      object[ui.key] = uiInfo.value;
-      changeFn();
-    };
-    return makeOption(ui);
-  }
-
-  const uiFuncs = {
-    slider: genSlider,
-    checkbox: genCheckbox,
-    option: genOption,
-  };
-
-  function setupUI(parent, object, uiInfos) {
-    const widgets = {};
-    uiInfos.forEach(function(ui) {
-      const widget = uiFuncs[ui.type](object, ui);
-      parent.appendChild(widget.elem);
-      widgets[ui.key] = widget;
-    });
-    return widgets;
-  }
-
-  function updateUI(widgets, data) {
-    Object.keys(widgets).forEach(key => {
-      const widget = widgets[key];
-      widget.updateValue(data[key]);
-    });
-  }
-
-  function getQueryParams() {
-    var params = {};
-    if (window.hackedParams) {
-      Object.keys(window.hackedParams).forEach(function(key) {
-        params[key] = window.hackedParams[key];
-      });
-    }
-    if (window.location.search) {
-      window.location.search.substring(1).split("&").forEach(function(pair) {
-        var keyValue = pair.split("=").map(function(kv) {
-          return decodeURIComponent(kv);
-        });
-        params[keyValue[0]] = keyValue[1];
-      });
-    }
-    return params;
-  }
-
-  return {
-    setupUI: setupUI,
-    updateUI: updateUI,
-    setupSlider: setupSlider,
-    makeSlider: makeSlider,
-    makeCheckbox: makeCheckbox,
-  };
-
-}));
-
-
-function objSelector(params) {
-  /* deleteChild("objdropdown"); */
-  if (params == "0") {
-    loadObject("0")
-  } else if (params == "1") {
-    loadObject("1")
-  } else if (params == "2") {
-    loadObject("2")
-  }
+classFilterEl.oninput = function () {
+	this.value == "All" ? classId = parseInt(-1):classId = parseInt( this.value );
 }
 
-  /* function deleteChild(id_element) {
-    var e = document.querySelector("#" + id_element);
-    var child = e.firstElementChild;
-    while (child) {
-        e.removeChild(child);
-        child = e.lastElementChild;
-    }
-} */
+modelSelectEl.oninput = function () {
 
- //Load Objects
- function loadObject(params) {
-  /* if (params == "0") {
-    
-  } */
-  console.log(params)
+	useCube = this.value == 1 ? true : false;
+
 }
+
+modelScaleEl.oninput = function () {
+
+	modelScale = this.value;
+
+}
+
+ambientLightColorEl.oninput = function () {
+
+	ambientLightColor[ 0 ] = parseInt( this.value.substr( 1, 2 ), 16 ) / 255;
+	ambientLightColor[ 1 ] = parseInt( this.value.substr( 3, 2 ), 16 ) / 255;
+	ambientLightColor[ 2 ] = parseInt( this.value.substr( 5, 2 ), 16 ) / 255;
+
+}
+
+ambientLightIntensityEl.oninput = function () {
+
+	ambientLightIntensity = this.value;
+
+}
+
+dirLightColorEl.oninput = function () {
+
+	dirLightColor[ 0 ] = parseInt( this.value.substr( 1, 2 ), 16 ) / 255;
+	dirLightColor[ 1 ] = parseInt( this.value.substr( 3, 2 ), 16 ) / 255;
+	dirLightColor[ 2 ] = parseInt( this.value.substr( 5, 2 ), 16 ) / 255;
+
+}
+
+dirLightIntensityEl.oninput = function () {
+
+	dirLightIntensity = this.value;
+
+}
+
+dirLightPosXEl.oninput = function () { dirLightPos[ 0 ] = this.value; }
+dirLightPosYEl.oninput = function () { dirLightPos[ 1 ] = this.value; }
+dirLightPosZEl.oninput = function () { dirLightPos[ 2 ] = this.value; }
