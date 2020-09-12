@@ -5,6 +5,7 @@ body {
   font-family: courier;
   font-size: large;
   overflow: hidden;
+  user-select: none;
 }
 
 /* Main */

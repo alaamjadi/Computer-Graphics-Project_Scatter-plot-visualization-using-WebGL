@@ -13,14 +13,12 @@ uniform mat4 normalMatrix;
 uniform mat4 modelMatrix;
 
 void main() {
-
 	// world space position
-	vPosition = vec3( modelMatrix * vec4( position.xyz, 1.0 ) );
+	vPosition = vec3(modelMatrix * vec4(position.xyz, 1.0));
 
 	// transform the normal using the normal matrix and pass it on to the fragment shader
-	vNormal = normalize( mat3( normalMatrix ) * normal );
+	vNormal = normalize(mat3(normalMatrix) * normal);
 
 	// project the position;
-	gl_Position = matrix * vec4( position, 1.0 );
-
+	gl_Position = matrix * vec4(position, 1.0);
 }
