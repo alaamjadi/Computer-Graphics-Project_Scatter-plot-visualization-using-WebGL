@@ -3,7 +3,7 @@ A project for computer graphics course which was developed by SophisticatedKids 
 
 #### Installing the dependencies
 
-[Deployment on Heroku](https://github.com/alaamjadi/CGP)
+[Deployment on Heroku](https://scatter-plot-webgl.herokuapp.com)
 
 #### Installing the dependencies
 ```
