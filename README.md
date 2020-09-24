@@ -2,6 +2,10 @@
 A project for computer graphics course which was developed by SophisticatedKids at Politecnico di Milano
 
 #### Installing the dependencies
+
+[Deployment on Heroku](https://github.com/alaamjadi/CGP)
+
+#### Installing the dependencies
 ```
 npm install
 ```
