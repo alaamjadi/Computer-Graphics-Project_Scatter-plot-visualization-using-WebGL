@@ -1,8 +1,7 @@
 # Computer Graphics - Scatter plot visualization using WebGL
 A project for computer graphics course which was developed by SophisticatedKids at Politecnico di Milano
 
-#### Installing the dependencies
-
+#### Opening the app
 [Deployment on Heroku](https://scatter-plot-webgl.herokuapp.com)
 
 #### Installing the dependencies
