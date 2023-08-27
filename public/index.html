@@ -19,113 +19,133 @@
   <link rel="stylesheet" href="./css/style.css" type="text/css" />
 </head>
 
+
 <body>
-  <!--CANVAS GOES HERE-->
-  <div class="container-f">
-    <div class="row">
-      <div class="col-10">
-        <div class='fullsize app'>
-          <canvas id="my-canvas" class="fullsize">
-            This browser does not support WebGL!
-          </canvas>
-        </div>
-      </div>
-      <div class="col-2 bg-light pr-4 pt-1" id="uiContainer">
-        <div class="gui">
-          <div>
-            Filter by class:
-            <select id="classFilter" class="custom-select" >
-              <option>All</option>
-              <option>0</option>
-              <option>1</option>
-              <option>2</option>
-            </select>
-          </div>
-          <div></div>
-          <div>
-            Select model:
-            <select id="modelSelect" class="custom-select">
-              <option value="0">Sphere</option>
-              <option value="1">Cube</option>
-            </select>
-          </div>
-          <div>
-            Model scale:
-            <input id="modelScale" class="custom-range" type="range" min="0.003" max="0.15" step="0.001" value="0.02">
-          </div>
-          <div>
-            Ambient Light
-            <input id="ambientLightColor" class="range" type="color" value="#ffffff">
-          </div>
-          <div>
-            Ambient Light Intensity:
-            <input id="ambientLightIntensity" class="custom-range" type="range" min="0" max="2" step="0.1" value="0.4">
-          </div>
-          <div>
-            Dir Light
-            <input id="dirLightColor" class="range" type="color" value="#ffffff">
-          </div>
-          <div>
-            Dir Light Intensity:
-            <input id="dirLightIntensity" class="custom-range" type="range" min="0" max="2" step="0.1" value="0.4">
-          </div>
-          <div>
-            Dir Light Pos X:
-            <input id="dirLightPosX" class="custom-range" type="range" min="0" max="20" step="0.1" value="10">
-          </div>
-          <div>
-            Dir Light Pos Y:
-            <input id="dirLightPosY" class="custom-range" type="range" min="0" max="20" step="0.1" value="10">
-          </div>
-          <div>
-            Dir Light Pos Z:
-            <input id="dirLightPosZ" class="custom-range" type="range" min="0" max="20" step="0.1" value="10">
-          </div>
-          <div>
-            Filter Min X
-            <input id="filterMinX" class="custom-range" type="range" min="0" max="1" step="0.01" value="0">
-          </div>
-          <div>
-            Filter Max X
-            <input id="filterMaxX" class="custom-range" type="range" min="0" max="1" step="0.01" value="1">
-          </div>
-          <div>
-            Filter Min Y
-            <input id="filterMinY" class="custom-range" type="range" min="0" max="1" step="0.01" value="0">
-          </div>
-          <div>
-            Filter Max Y
-            <input id="filterMaxY" class="custom-range" type="range" min="0" max="1" step="0.01" value="1">
-          </div>
-          <div>
-            Filter Min Z
-            <input id="filterMinZ" class="custom-range" type="range" min="0" max="1" step="0.01" value="0">
-          </div>
-          <div>
-            Filter Max Z
-            <input id="filterMaxZ" class="custom-range" type="range" min="0" max="1" step="0.01" value="1">
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+ <div id="page-container">
+   <div id="content-wrap">
+     <!-- all other page content -->
+   </div>
+   <footer id="footer"></footer>
+ </div>
+</body>
 
 
 
 
-  <!-- *** Footer Section *** -->
-  <footer>
-    <div class="container">
+<body>
+  <div id="page-container">
+    
+    <!--CANVAS GOES HERE-->
+    <div id="content-wrap" class="container-f">
       <div class="row">
-        <div class="col">
-          <p>
-            © 2020 Computer Grphics Project | Designed by
-            <a href="https://mil-care.herokuapp.com/backend"><strong></strong>SophisticatedKids</strong></a>
-          </p>
+        <div class="col-10">
+          <div class='fullsize app'>
+            <canvas id="my-canvas" class="fullsize">
+              This browser does not support WebGL!
+            </canvas>
+          </div>
+        </div>
+        <div class="col-2 bg-light pr-4 pt-1" id="uiContainer">
+          <div class="gui">
+            <div>
+              Filter by class:
+              <select id="classFilter" class="custom-select" >
+                <option>All</option>
+                <option>0</option>
+                <option>1</option>
+                <option>2</option>
+              </select>
+            </div>
+            <div></div>
+            <div>
+              Select model:
+              <select id="modelSelect" class="custom-select">
+                <option value="0">Sphere</option>
+                <option value="1">Cube</option>
+              </select>
+            </div>
+            <div>
+              Model scale:
+              <input id="modelScale" class="custom-range" type="range" min="0.003" max="0.15" step="0.001" value="0.02">
+            </div>
+            <div>
+              Ambient Light
+              <input id="ambientLightColor" class="range" type="color" value="#ffffff">
+            </div>
+            <div>
+              Ambient Light Intensity:
+              <input id="ambientLightIntensity" class="custom-range" type="range" min="0" max="2" step="0.1" value="0.4">
+            </div>
+            <div>
+              Dir Light
+              <input id="dirLightColor" class="range" type="color" value="#ffffff">
+            </div>
+            <div>
+              Dir Light Intensity:
+              <input id="dirLightIntensity" class="custom-range" type="range" min="0" max="2" step="0.1" value="0.4">
+            </div>
+            <div>
+              Dir Light Pos X:
+              <input id="dirLightPosX" class="custom-range" type="range" min="0" max="20" step="0.1" value="10">
+            </div>
+            <div>
+              Dir Light Pos Y:
+              <input id="dirLightPosY" class="custom-range" type="range" min="0" max="20" step="0.1" value="10">
+            </div>
+            <div>
+              Dir Light Pos Z:
+              <input id="dirLightPosZ" class="custom-range" type="range" min="0" max="20" step="0.1" value="10">
+            </div>
+            <div>
+              Filter Min X
+              <input id="filterMinX" class="custom-range" type="range" min="0" max="1" step="0.01" value="0">
+            </div>
+            <div>
+              Filter Max X
+              <input id="filterMaxX" class="custom-range" type="range" min="0" max="1" step="0.01" value="1">
+            </div>
+            <div>
+              Filter Min Y
+              <input id="filterMinY" class="custom-range" type="range" min="0" max="1" step="0.01" value="0">
+            </div>
+            <div>
+              Filter Max Y
+              <input id="filterMaxY" class="custom-range" type="range" min="0" max="1" step="0.01" value="1">
+            </div>
+            <div>
+              Filter Min Z
+              <input id="filterMinZ" class="custom-range" type="range" min="0" max="1" step="0.01" value="0">
+            </div>
+            <div>
+              Filter Max Z
+              <input id="filterMaxZ" class="custom-range" type="range" min="0" max="1" step="0.01" value="1">
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </footer>
+      
+    <!-- *** Footer Section *** -->
+    <footer id="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <p>
+              © 2020 Computer Grphics Project | Designed by
+              <a href="https://"><strong></strong>SophisticatedKids</strong></a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+  
+  
+
+
+
+
+  
 
   <!-- *** Optional JavaScript *** -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
