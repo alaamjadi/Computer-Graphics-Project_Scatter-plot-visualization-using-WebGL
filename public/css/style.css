@@ -1,10 +1,8 @@
 /* Body */
 body {
   margin: 0;
-  background-color: gray;
   font-family: courier;
-  font-size: large;
-  overflow: hidden;
+  /* overflow: hidden; */
   user-select: none;
 }
 
@@ -25,13 +23,13 @@ a:hover{
 
 /* Footer */
 footer {
+  bottom: 0;
+  width: 100%;
+  height: 2.5rem;
   background-color: #484848;
   font-size: 16px;
   text-align: center;
-  padding-top: 6px;
-  padding-bottom: 0px;
-  left: 0;
-  right: 0;
+  padding-top: 1vh;
   color: white;
 }
 
@@ -39,16 +37,10 @@ footer {
 /* New IDs */
 #page-container {
   position: relative;
-  min-height: 100vh;
+  min-height: 1vh;
 }
 
 #content-wrap {
   padding-bottom: 2.5rem;    /* Footer height */
 }
 
-#footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 2.5rem;            /* Footer height */
-}
